@@ -113,38 +113,34 @@ async def move_status(ctx, *, move_name):
         # Replace spaces with underscores to match Pokebase API format
         formatted_move_name = move_name.replace(' ', '_').lower()
         
+        # Check for hyphens and split accordingly
+        if '-' in formatted_move_name:
+            parts = formatted_move_name.split('-')
+            formatted_move_name = ' '.join(part.capitalize() for part in parts)
+        else:
+            formatted_move_name = formatted_move_name.capitalize()
+        
         move = pokebase.move(formatted_move_name)
         
         # Format move details
-        move_type = move.type.name if hasattr(move, 'type') and move.type else 'Unknown'
+        move_type = move.type.name.capitalize() if hasattr(move, 'type') and move.type else 'Unknown'
         move_power = move.power if hasattr(move, 'power') and move.power else 'Unknown'
         move_accuracy = move.accuracy if hasattr(move, 'accuracy') and move.accuracy else 'Unknown'
         move_pp = move.pp if hasattr(move, 'pp') and move.pp else 'Unknown'
-        move_category = move.damage_class.name if hasattr(move, 'damage_class') and move.damage_class else 'Unknown'
-
-        # Determine if move is physical, special, or status
-        if move_category == 'physical':
-            move_category_text = 'Physical'
-        elif move_category == 'special':
-            move_category_text = 'Special'
-        elif move_category == 'status':
-            move_category_text = 'Status'
-        else:
-            move_category_text = 'Unknown'
+        move_category = move.damage_class.name.capitalize() if hasattr(move, 'damage_class') and move.damage_class else 'Unknown'
 
         # Create an embed for move details
-        embed = discord.Embed(title=f"Move Details: {move.name.capitalize()}", color=discord.Color.blue())
-        embed.add_field(name="Type", value=move_type.capitalize(), inline=True)
+        embed = discord.Embed(title=f"Move Details: {formatted_move_name}", color=discord.Color.blue())
+        embed.add_field(name="Type", value=move_type, inline=True)
         embed.add_field(name="Power", value=move_power, inline=True)
         embed.add_field(name="Accuracy", value=move_accuracy, inline=True)
         embed.add_field(name="PP", value=move_pp, inline=True)
-        embed.add_field(name="Category", value=move_category_text, inline=True)
+        embed.add_field(name="Category", value=move_category, inline=True)
 
         await ctx.send(embed=embed)
 
     except ValueError:
         await ctx.send(f"Move '{move_name}' not found. Please enter a valid move name.")
-
 
 @bot.command(name='ttmove')
 async def tt_move(ctx, move_name):
