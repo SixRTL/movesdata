@@ -119,6 +119,17 @@ async def move_status(ctx, move_name):
     move_power = move.power if hasattr(move, 'power') and move.power else 'Unknown'
     move_accuracy = move.accuracy if hasattr(move, 'accuracy') and move.accuracy else 'Unknown'
     move_pp = move.pp if hasattr(move, 'pp') and move.pp else 'Unknown'
+    move_category = move.damage_class.name if hasattr(move, 'damage_class') and move.damage_class else 'Unknown'
+
+    # Determine if move is physical, special, or status
+    if move_category == 'physical':
+        move_category_text = 'Physical'
+    elif move_category == 'special':
+        move_category_text = 'Special'
+    elif move_category == 'status':
+        move_category_text = 'Status'
+    else:
+        move_category_text = 'Unknown'
 
     # Create an embed for move details
     embed = discord.Embed(title=f"Move Details: {move.name.capitalize()}", color=discord.Color.blue())
@@ -126,6 +137,7 @@ async def move_status(ctx, move_name):
     embed.add_field(name="Power", value=move_power, inline=True)
     embed.add_field(name="Accuracy", value=move_accuracy, inline=True)
     embed.add_field(name="PP", value=move_pp, inline=True)
+    embed.add_field(name="Category", value=move_category_text, inline=True)
 
     await ctx.send(embed=embed)
 
@@ -138,7 +150,7 @@ async def help_menu(ctx):
     embed.add_field(name="$registermoves move1 move2 move3 move4", value="Registers 4 moves to your profile.", inline=False)
     embed.add_field(name="$viewmoves", value="Displays your registered moves.", inline=False)
     embed.add_field(name="$replacemoves move1 move2 move3 move4", value="Replaces your registered moves with new ones.", inline=False)
-    embed.add_field(name="$movestatus move_name", value="Shows details (PP, accuracy, power) of a specific move.", inline=False)
+    embed.add_field(name="$movestatus move_name", value="Shows details (PP, accuracy, power, category) of a specific move.", inline=False)
     embed.add_field(name="$helpmenu", value="Displays this command menu.", inline=False)
 
     await ctx.send(embed=embed)
