@@ -52,6 +52,47 @@ async def register_moves(ctx, move1, move2, move3, move4):
 
     await ctx.send(f"Moves registered successfully for {ctx.author.mention}.")
 
+@bot.command(name='viewmoves')
+async def view_moves(ctx):
+    # Retrieve user's registered moves from MongoDB
+    user_data = collection.find_one({"discord_id": str(ctx.author.id)})
+    if not user_data or not user_data.get('registered_moves'):
+        await ctx.send(f"You haven't registered any moves yet, {ctx.author.mention}.")
+        return
+
+    registered_moves = user_data['registered_moves']
+    moves_list = '\n'.join(registered_moves)
+    await ctx.send(f"Your registered moves:\n{moves_list}")
+
+@bot.command(name='replacemoves')
+async def replace_moves(ctx, move1, move2, move3, move4):
+    moves_to_replace = [move1.lower(), move2.lower(), move3.lower(), move4.lower()]
+
+    # Ensure exactly 4 moves are provided
+    if len(moves_to_replace) != 4:
+        await ctx.send('Please provide exactly 4 moves to replace.')
+        return
+
+    # Validate moves
+    validated_moves = []
+    for move_name in moves_to_replace:
+        move_data = await get_move_data(move_name)
+        if move_data:
+            validated_moves.append(move_data['name'])
+        else:
+            await ctx.send(f"Move '{move_name}' not found. Please enter valid move names.")
+            return
+
+    # Update user's registered moves
+    user_data = {
+        "discord_id": str(ctx.author.id),
+        "username": str(ctx.author),
+        "registered_moves": validated_moves
+    }
+    collection.update_one({"discord_id": str(ctx.author.id)}, {"$set": user_data}, upsert=True)
+
+    await ctx.send(f"Moves replaced successfully for {ctx.author.mention}.")
+
 async def get_move_data(move_name):
     try:
         move = pokebase.move(move_name.lower())
