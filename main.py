@@ -5,17 +5,14 @@ import os
 import pokebase
 
 # MongoDB connection
-mongo_uri = os.environ.get('MONGODB_URI')  # Retrieve MongoDB URI from Heroku config vars
+mongo_uri = os.environ.get('MONGODB_URI')  # Retrieve MongoDB URI from environment variables
 mongo_client = pymongo.MongoClient(mongo_uri)
 db = mongo_client.get_default_database("discord_bot")  # Use the default database provided in the URI
-collection = db["moves"]  # Replace with your collection name
+collection = db["moves"]  # Collection to store registered moves
 
 # Discord bot setup
 intents = discord.Intents.all()
-intents.messages = True
-intents.guilds = True
-
-bot = commands.Bot(command_prefix='$', intents=intents)  # Include intents parameter
+bot = commands.Bot(command_prefix='$', intents=intents)
 
 @bot.event
 async def on_ready():
@@ -24,12 +21,12 @@ async def on_ready():
 @bot.command(name='registermoves')
 async def register_moves(ctx, move1, move2, move3, move4):
     moves_to_register = [move1.lower(), move2.lower(), move3.lower(), move4.lower()]
-    
+
     # Ensure exactly 4 moves are provided
     if len(moves_to_register) != 4:
         await ctx.send('Please provide exactly 4 moves to register.')
         return
-    
+
     # Connect to MongoDB and find or create user
     user_data = collection.find_one({"discord_id": str(ctx.author.id)})
     if not user_data:
@@ -38,7 +35,7 @@ async def register_moves(ctx, move1, move2, move3, move4):
             "username": str(ctx.author),
             "registered_moves": []
         }
-    
+
     # Validate moves and register them
     validated_moves = []
     for move_name in moves_to_register:
@@ -48,11 +45,11 @@ async def register_moves(ctx, move1, move2, move3, move4):
         else:
             await ctx.send(f"Move '{move_name}' not found. Please enter valid move names.")
             return
-    
+
     # Update user's registered moves
     user_data["registered_moves"] = validated_moves
     collection.update_one({"discord_id": str(ctx.author.id)}, {"$set": user_data}, upsert=True)
-    
+
     await ctx.send(f"Moves registered successfully for {ctx.author.mention}.")
 
 async def get_move_data(move_name):
@@ -60,10 +57,10 @@ async def get_move_data(move_name):
         move = pokebase.move(move_name.lower())
         move_data = {
             'name': move.name,
-            'type': move.type.name,
-            'power': move.power,
-            'accuracy': move.accuracy,
-            'pp': move.pp,
+            'type': move.type.name if move.type else 'Unknown',
+            'power': move.power if move.power else 0,
+            'accuracy': move.accuracy if move.accuracy else 0,
+            'pp': move.pp if move.pp else 0,
             # Add more fields as needed
         }
         return move_data
@@ -71,4 +68,4 @@ async def get_move_data(move_name):
         return None
 
 # Run the bot
-bot.run(os.environ.get('DISCORD_BOT_TOKEN'))  # Retrieve Discord bot token from Heroku config vars
+bot.run(os.environ.get('DISCORD_BOT_TOKEN'))  # Retrieve Discord bot token from environment variables
