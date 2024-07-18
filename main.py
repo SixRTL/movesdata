@@ -108,39 +108,43 @@ async def replace_moves(ctx, move1, move2, move3, move4):
     await ctx.send(f"Moves replaced successfully for {ctx.author.mention}.")
 
 @bot.command(name='movestatus')
-async def move_status(ctx, move_name):
+async def move_status(ctx, *, move_name):
     try:
-        move = pokebase.move(move_name.lower())
+        # Replace spaces with underscores to match Pokebase API format
+        formatted_move_name = move_name.replace(' ', '_').lower()
+        
+        move = pokebase.move(formatted_move_name)
+        
+        # Format move details
+        move_type = move.type.name if hasattr(move, 'type') and move.type else 'Unknown'
+        move_power = move.power if hasattr(move, 'power') and move.power else 'Unknown'
+        move_accuracy = move.accuracy if hasattr(move, 'accuracy') and move.accuracy else 'Unknown'
+        move_pp = move.pp if hasattr(move, 'pp') and move.pp else 'Unknown'
+        move_category = move.damage_class.name if hasattr(move, 'damage_class') and move.damage_class else 'Unknown'
+
+        # Determine if move is physical, special, or status
+        if move_category == 'physical':
+            move_category_text = 'Physical'
+        elif move_category == 'special':
+            move_category_text = 'Special'
+        elif move_category == 'status':
+            move_category_text = 'Status'
+        else:
+            move_category_text = 'Unknown'
+
+        # Create an embed for move details
+        embed = discord.Embed(title=f"Move Details: {move.name.capitalize()}", color=discord.Color.blue())
+        embed.add_field(name="Type", value=move_type.capitalize(), inline=True)
+        embed.add_field(name="Power", value=move_power, inline=True)
+        embed.add_field(name="Accuracy", value=move_accuracy, inline=True)
+        embed.add_field(name="PP", value=move_pp, inline=True)
+        embed.add_field(name="Category", value=move_category_text, inline=True)
+
+        await ctx.send(embed=embed)
+
     except ValueError:
         await ctx.send(f"Move '{move_name}' not found. Please enter a valid move name.")
-        return
 
-    # Format move details
-    move_type = move.type.name if hasattr(move, 'type') and move.type else 'Unknown'
-    move_power = move.power if hasattr(move, 'power') and move.power else 'Unknown'
-    move_accuracy = move.accuracy if hasattr(move, 'accuracy') and move.accuracy else 'Unknown'
-    move_pp = move.pp if hasattr(move, 'pp') and move.pp else 'Unknown'
-    move_category = move.damage_class.name if hasattr(move, 'damage_class') and move.damage_class else 'Unknown'
-
-    # Determine if move is physical, special, or status
-    if move_category == 'physical':
-        move_category_text = 'Physical'
-    elif move_category == 'special':
-        move_category_text = 'Special'
-    elif move_category == 'status':
-        move_category_text = 'Status'
-    else:
-        move_category_text = 'Unknown'
-
-    # Create an embed for move details
-    embed = discord.Embed(title=f"Move Details: {move.name.capitalize()}", color=discord.Color.blue())
-    embed.add_field(name="Type", value=move_type.capitalize(), inline=True)
-    embed.add_field(name="Power", value=move_power, inline=True)
-    embed.add_field(name="Accuracy", value=move_accuracy, inline=True)
-    embed.add_field(name="PP", value=move_pp, inline=True)
-    embed.add_field(name="Category", value=move_category_text, inline=True)
-
-    await ctx.send(embed=embed)
 
 @bot.command(name='ttmove')
 async def tt_move(ctx, move_name):
