@@ -7,11 +7,11 @@ import requests
 # MongoDB connection
 mongo_uri = os.environ.get('MONGODB_URI')  # Retrieve MongoDB URI from Heroku config vars
 mongo_client = pymongo.MongoClient(mongo_uri)
-db = mongo_client.get_default_database()  # Use the default database provided in the URI
+db = mongo_client.get_default_database("discord_bot")  # Use the default database provided in the URI
 collection = db["moves"]  # Replace with your collection name
 
 # Discord bot setup
-bot = commands.Bot(command_prefix='/')  # Change the prefix as desired
+bot = commands.Bot(command_prefix='$')  # Change the prefix as desired
 
 @bot.event
 async def on_ready():
