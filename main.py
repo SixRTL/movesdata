@@ -66,9 +66,7 @@ async def view_moves(ctx):
     # Format move names: capitalize each word properly and replace underscores with spaces
     formatted_moves = []
     for move in registered_moves:
-        parts = move.split('_')
-        capitalized_parts = [part.capitalize() for part in parts]
-        formatted_move = ' '.join(capitalized_parts)
+        formatted_move = move.replace('_', ' ').title()
         formatted_moves.append(formatted_move)
     
     # Create an embed for displaying registered moves
@@ -120,11 +118,11 @@ async def move_status(ctx, *, move_name):
             raise ValueError
         
         # Format move details
-        move_type = move.type.name.capitalize() if move.type else 'Unknown'
-        move_power = move.power if move.power is not None else 'Unknown'
-        move_accuracy = move.accuracy if move.accuracy is not None else 'Unknown'
-        move_pp = move.pp if move.pp is not None else 'Unknown'
-        move_category = move.damage_class.name.capitalize() if move.damage_class else 'Unknown'
+        move_type = move.type.name.capitalize() if hasattr(move, 'type') and move.type else 'Unknown'
+        move_power = move.power if hasattr(move, 'power') and move.power is not None else 'Unknown'
+        move_accuracy = move.accuracy if hasattr(move, 'accuracy') and move.accuracy is not None else 'Unknown'
+        move_pp = move.pp if hasattr(move, 'pp') and move.pp is not None else 'Unknown'
+        move_category = move.damage_class.name.capitalize() if hasattr(move, 'damage_class') and move.damage_class else 'Unknown'
 
         # Create an embed for move details
         embed = discord.Embed(title=f"Move Details: {formatted_move_name}", color=discord.Color.blue())
@@ -138,6 +136,8 @@ async def move_status(ctx, *, move_name):
 
     except ValueError:
         await ctx.send(f"Move '{move_name}' not found. Please enter a valid move name.")
+    except Exception as e:
+        await ctx.send(f"An error occurred: {str(e)}")
 
 @bot.command(name='ttmove')
 async def tt_move(ctx, move_name):
