@@ -3,6 +3,7 @@ from discord.ext import commands
 import os
 import pokebase
 import pymongo
+import math
 
 # MongoDB connection
 mongo_uri = os.environ.get('MONGODB_URI')  # Retrieve MongoDB URI from environment variables
@@ -141,6 +142,51 @@ async def move_status(ctx, move_name):
 
     await ctx.send(embed=embed)
 
+@bot.command(name='ttmove')
+async def tt_move(ctx, move_name):
+    try:
+        move = pokebase.move(move_name.lower())
+    except ValueError:
+        await ctx.send(f"Move '{move_name}' not found. Please enter a valid move name.")
+        return
+
+    # Calculate Table Top (D&D converted) version
+    if move.damage_class.name == 'physical':
+        d = 'd' + str(math.ceil(move.power / 10))
+        converted_damage = f"({d}) + ATK"
+    elif move.damage_class.name == 'special':
+        d = 'd' + str(math.ceil(move.power / 10))
+        converted_damage = f"({d}) + Sp.ATK"
+    else:
+        converted_damage = "This move is not a damaging move."
+
+    # Calculate EP (Energy Points) cost based on move's base power
+    if move.power > 90:
+        ep_cost = 5
+    elif move.power >= 70:
+        ep_cost = 2
+    else:
+        ep_cost = 1
+
+    # Determine if move is Multi-Hit
+    if move.effect_entries:
+        for effect in move.effect_entries:
+            if 'hits' in effect.short_effect.lower():
+                move_type = "Multi-Hit"
+                break
+        else:
+            move_type = "Standard"
+    else:
+        move_type = "Unknown"
+
+    # Create an embed for Table Top (D&D converted) version with EP cost and type
+    embed = discord.Embed(title=f"Table Top Converted Version: {move.name.capitalize()}", color=discord.Color.orange())
+    embed.add_field(name="Table Top Formula", value=converted_damage, inline=False)
+    embed.add_field(name="EP Cost", value=f"{ep_cost} EP", inline=False)
+    embed.add_field(name="Move Type", value=move_type, inline=False)
+
+    await ctx.send(embed=embed)
+
 @bot.command(name='helpmenu')
 async def help_menu(ctx):
     # Create an embed for the help menu
@@ -151,6 +197,7 @@ async def help_menu(ctx):
     embed.add_field(name="$viewmoves", value="Displays your registered moves.", inline=False)
     embed.add_field(name="$replacemoves move1 move2 move3 move4", value="Replaces your registered moves with new ones.", inline=False)
     embed.add_field(name="$movestatus move_name", value="Shows details (PP, accuracy, power, category) of a specific move.", inline=False)
+    embed.add_field(name="$ttmove move_name", value="Displays the Table Top converted version of a move (damage formula, EP cost, and type).", inline=False)
     embed.add_field(name="$helpmenu", value="Displays this command menu.", inline=False)
 
     await ctx.send(embed=embed)
@@ -165,6 +212,8 @@ async def get_move_data(move_name):
             'power': move.power if hasattr(move, 'power') and move.power else 0,
             'accuracy': move.accuracy if hasattr(move, 'accuracy') and move.accuracy else 0,
             'pp': move.pp if hasattr(move, 'pp') and move.pp else 0,
+            'damage_class': move.damage_class.name if hasattr(move, 'damage_class') and move.damage_class else 'Unknown',
+            'effect_entries': move.effect_entries if hasattr(move, 'effect_entries') else None
             # Add more fields as needed
         }
         return move_data
