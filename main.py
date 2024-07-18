@@ -107,7 +107,7 @@ async def replace_moves(ctx, move1, move2, move3, move4):
 
     await ctx.send(f"Moves replaced successfully for {ctx.author.mention}.")
 
-@bot.command(name='movestatus')
+@bot.command(name='moveinfo')
 async def move_status(ctx, *, move_name):
     try:
         # Replace spaces with underscores to match Pokebase API format
@@ -191,7 +191,7 @@ async def tt_move(ctx, move_name):
                 additional_info = "Roll a d4 + 1 to determine how many hits landed."
                 ep_cost = f"2({additional_info})"
                 break
-    
+
     # Create an embed for move details
     embed = discord.Embed(title=f"Table Top Converted Version: {move.name.capitalize()}",
                           color=discord.Color.orange())
@@ -210,6 +210,8 @@ async def tt_move(ctx, move_name):
             ep_cost = 0  # Set EP cost to 0 for Basic moves and moves with no power
         embed.add_field(name="EP Cost", value=f"{ep_cost} EP", inline=False)
     embed.add_field(name="Move Category", value=move_category, inline=False)
+    if move_category == "Multi-Hit":
+        embed.add_field(name="Additional Info", value=additional_info, inline=False)
 
     await ctx.send(embed=embed)
 
@@ -222,7 +224,7 @@ async def help_menu(ctx):
     embed.add_field(name="$registermoves move1 move2 move3 move4", value="Registers 4 moves to your profile.", inline=False)
     embed.add_field(name="$viewmoves", value="Displays your registered moves.", inline=False)
     embed.add_field(name="$replacemoves move1 move2 move3 move4", value="Replaces your registered moves with new ones.", inline=False)
-    embed.add_field(name="$movestatus move_name", value="Shows details (PP, accuracy, power, category) of a specific move.", inline=False)
+    embed.add_field(name="$moveinfo move_name", value="Shows details (PP, accuracy, power, category) of a specific move.", inline=False)
     embed.add_field(name="$ttmove move_name", value="Displays the Table Top converted version of a move (damage formula, EP cost, type, etc.).", inline=False)
     embed.add_field(name="$helpmenu", value="Displays this command menu.", inline=False)
 
