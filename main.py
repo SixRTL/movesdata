@@ -55,12 +55,13 @@ async def register_moves(ctx, move1, move2, move3, move4):
 async def get_move_data(move_name):
     try:
         move = pokebase.move(move_name.lower())
+        move_type = move.type.name if hasattr(move, 'type') and move.type else 'Unknown'
         move_data = {
             'name': move.name,
-            'type': move.type.name if move.type else 'Unknown',
-            'power': move.power if move.power else 0,
-            'accuracy': move.accuracy if move.accuracy else 0,
-            'pp': move.pp if move.pp else 0,
+            'type': move_type,
+            'power': move.power if hasattr(move, 'power') and move.power else 0,
+            'accuracy': move.accuracy if hasattr(move, 'accuracy') and move.accuracy else 0,
+            'pp': move.pp if hasattr(move, 'pp') and move.pp else 0,
             # Add more fields as needed
         }
         return move_data
