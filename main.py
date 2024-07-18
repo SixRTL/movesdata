@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import pymongo
 import os
-import aiohttp
+import pokebase
 
 # MongoDB connection
 mongo_uri = os.environ.get('MONGODB_URI')  # Retrieve MongoDB URI from Heroku config vars
@@ -56,14 +56,19 @@ async def register_moves(ctx, move1, move2, move3, move4):
     await ctx.send(f"Moves registered successfully for {ctx.author.mention}.")
 
 async def get_move_data(move_name):
-    url = f"https://pokeapi.co/api/v2/move/{move_name.lower()}/"
-    
-    async with aiohttp.ClientSession() as session:
-        async with session.get(url) as response:
-            if response.status == 200:
-                return await response.json()
-            else:
-                return None
+    try:
+        move = pokebase.move(move_name.lower())
+        move_data = {
+            'name': move.name,
+            'type': move.type.name,
+            'power': move.power,
+            'accuracy': move.accuracy,
+            'pp': move.pp,
+            # Add more fields as needed
+        }
+        return move_data
+    except ValueError:
+        return None
 
 # Run the bot
 bot.run(os.environ.get('DISCORD_BOT_TOKEN'))  # Retrieve Discord bot token from Heroku config vars
