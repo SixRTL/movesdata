@@ -11,7 +11,11 @@ db = mongo_client.get_default_database("discord_bot")  # Use the default databas
 collection = db["moves"]  # Replace with your collection name
 
 # Discord bot setup
-bot = commands.Bot(command_prefix='$')  # Change the prefix as desired
+intents = discord.Intents.all()
+intents.messages = True
+intents.guilds = True
+
+bot = commands.Bot(command_prefix='$', intents=intents)  # Include intents parameter
 
 @bot.event
 async def on_ready():
