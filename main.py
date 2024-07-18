@@ -174,6 +174,8 @@ async def tt_move(ctx, move_name):
         converted_damage = f"({d}) + Sp.ATK"
     elif move.damage_class.name == 'status':
         converted_damage = "This move is non-damaging and provides a status effect."
+    elif move.name.lower() in ['dragon-rage', 'sonic-boom']:
+        converted_damage = "This move deals a fixed amount of damage."
     elif move.damage_class.name == 'basic' or move.power == 0:
         converted_damage = "This move deals static damage equal to the user's level."
     else:
@@ -197,7 +199,7 @@ async def tt_move(ctx, move_name):
         for effect in move.effect_entries:
             if 'hits' in effect.short_effect.lower():
                 move_type = "Multi-Hit"
-                additional_info = "d4 + 1"
+                additional_info = "Roll a d4 + 1 to determine how many hits landed."
                 ep_cost = f"2({additional_info})"
                 break
 
