@@ -110,17 +110,10 @@ async def replace_moves(ctx, move1, move2, move3, move4):
 @bot.command(name='movestatus')
 async def move_status(ctx, *, move_name):
     try:
-        # Replace spaces with underscores to match Pokebase API format
-        formatted_move_name = move_name.replace(' ', '_').lower()
+        # Replace hyphens with spaces and capitalize each word properly
+        formatted_move_name = move_name.replace('-', ' ').title()
         
-        # Check for hyphens and split accordingly
-        if '-' in formatted_move_name:
-            parts = formatted_move_name.split('-')
-            formatted_move_name = ' '.join(part.capitalize() for part in parts)
-        else:
-            formatted_move_name = formatted_move_name.capitalize()
-        
-        move = pokebase.move(formatted_move_name)
+        move = pokebase.move(formatted_move_name.lower())
         
         # Format move details
         move_type = move.type.name.capitalize() if hasattr(move, 'type') and move.type else 'Unknown'
