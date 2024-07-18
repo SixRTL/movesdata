@@ -154,20 +154,20 @@ async def tt_move(ctx, move_name):
         return
 
     # Determine move category and description
-    if move.damage_class.name == 'physical':
-        d = 'd' + str(math.ceil(move.power / 10)) if move.power else 'd0'
-        converted_damage = f"({d}) + ATK"
-        move_category = "Standard"
-    elif move.damage_class.name == 'special':
-        d = 'd' + str(math.ceil(move.power / 10)) if move.power else 'd0'
-        converted_damage = f"({d}) + Sp.ATK"
-        move_category = "Standard"
+    if move.name.lower() in ['dragon-rage', 'sonic-boom']:  # Add more moves if needed
+        converted_damage = "This move deals a fixed amount of damage."
+        move_category = "Basic"
     elif move.damage_class.name == 'status':
         converted_damage = "This move is non-damaging and provides a status effect."
         move_category = "Status"
-    elif move.name.lower() == 'dragon-rage':
-        converted_damage = "This move deals a fixed amount of damage."
-        move_category = "Basic"
+    elif move.damage_class.name in ['physical', 'special']:
+        if move.power is not None and move.power > 0:
+            d = 'd' + str(math.ceil(move.power / 10))
+            converted_damage = f"({d}) + ATK" if move.damage_class.name == 'physical' else f"({d}) + Sp.ATK"
+            move_category = "Standard"
+        else:
+            converted_damage = "Unknown"
+            move_category = "Unknown"
     elif move.damage_class.name == 'basic' or move.power in [0, None]:
         converted_damage = "This move deals static damage equal to the user's level."
         move_category = "Basic"
