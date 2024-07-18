@@ -145,7 +145,6 @@ async def move_status(ctx, *, move_name):
     except ValueError:
         await ctx.send(f"Move '{move_name}' not found. Please enter a valid move name.")
 
-
 @bot.command(name='ttmove')
 async def tt_move(ctx, move_name):
     try:
@@ -161,33 +160,54 @@ async def tt_move(ctx, move_name):
     elif move.damage_class.name == 'special':
         d = 'd' + str(math.ceil(move.power / 10))
         converted_damage = f"({d}) + Sp.ATK"
+    elif move.damage_class.name == 'status':
+        converted_damage = "This move is non-damaging."
+    elif move.damage_class.name == 'basic':
+        converted_damage = f"Level (Basic Move)"
     else:
-        converted_damage = "This move is not a damaging move."
+        converted_damage = "Unknown"
 
     # Calculate EP (Energy Points) cost based on move's base power
     if move.power > 90:
         ep_cost = 5
     elif move.power >= 70:
         ep_cost = 2
-    else:
+    elif move.power >= 1:
         ep_cost = 1
+    else:
+        ep_cost = 0  # Set EP cost to 0 for Basic moves
 
-    # Determine if move is Multi-Hit
+    # Determine move type: Standard, Multi-Hit, or Status
+    move_type = "Standard"
+    additional_info = ""
+
     if move.effect_entries:
         for effect in move.effect_entries:
             if 'hits' in effect.short_effect.lower():
                 move_type = "Multi-Hit"
+                additional_info = f"d4 + 1 - Multi-Hit moves"
                 break
-        else:
-            move_type = "Standard"
-    else:
-        move_type = "Unknown"
+            elif 'status' in effect.short_effect.lower():
+                move_type = "Status"
+                additional_info = effect.short_effect
+                break
 
-    # Create an embed for Table Top (D&D converted) version with EP cost and type
-    embed = discord.Embed(title=f"Table Top Converted Version: {move.name.capitalize()}", color=discord.Color.orange())
+    # Determine PP usage in dungeons based on max PP
+    if move.pp >= 60:
+        dungeon_usage = "3 times per dungeon"
+    elif move.pp >= 30:
+        dungeon_usage = "2 times per dungeon"
+    else:
+        dungeon_usage = "1 time per dungeon"
+
+    # Create an embed for Table Top (D&D converted) version with EP cost, type, and dungeon usage
+    embed = discord.Embed(title=f"Table Top Converted Version: {move.name.capitalize()}",
+                          color=discord.Color.orange())
     embed.add_field(name="Table Top Formula", value=converted_damage, inline=False)
     embed.add_field(name="EP Cost", value=f"{ep_cost} EP", inline=False)
     embed.add_field(name="Move Type", value=move_type, inline=False)
+    embed.add_field(name="Additional Info", value=additional_info, inline=False)
+    embed.add_field(name="Dungeon Usage", value=dungeon_usage, inline=False)
 
     await ctx.send(embed=embed)
 
@@ -201,7 +221,7 @@ async def help_menu(ctx):
     embed.add_field(name="$viewmoves", value="Displays your registered moves.", inline=False)
     embed.add_field(name="$replacemoves move1 move2 move3 move4", value="Replaces your registered moves with new ones.", inline=False)
     embed.add_field(name="$movestatus move_name", value="Shows details (PP, accuracy, power, category) of a specific move.", inline=False)
-    embed.add_field(name="$ttmove move_name", value="Displays the Table Top converted version of a move (damage formula, EP cost, and type).", inline=False)
+    embed.add_field(name="$ttmove move_name", value="Displays the Table Top converted version of a move (damage formula, EP cost, type, etc.).", inline=False)
     embed.add_field(name="$helpmenu", value="Displays this command menu.", inline=False)
 
     await ctx.send(embed=embed)
