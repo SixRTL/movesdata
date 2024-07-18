@@ -2,7 +2,7 @@ import discord
 from discord.ext import commands
 import pymongo
 import os
-import requests
+import aiohttp
 
 # MongoDB connection
 mongo_uri = os.environ.get('MONGODB_URI')  # Retrieve MongoDB URI from Heroku config vars
@@ -42,7 +42,7 @@ async def register_moves(ctx, move1, move2, move3, move4):
     # Validate moves and register them
     validated_moves = []
     for move_name in moves_to_register:
-        move_data = get_move_data(move_name)
+        move_data = await get_move_data(move_name)
         if move_data:
             validated_moves.append(move_data['name'])
         else:
@@ -55,13 +55,15 @@ async def register_moves(ctx, move1, move2, move3, move4):
     
     await ctx.send(f"Moves registered successfully for {ctx.author.mention}.")
 
-def get_move_data(move_name):
-    url = f"https://pokeapi.co/api/v2/move/{move_name}/"
-    response = requests.get(url)
-    if response.status_code == 200:
-        return response.json()
-    else:
-        return None
+async def get_move_data(move_name):
+    url = f"https://pokeapi.co/api/v2/move/{move_name.lower()}/"
+    
+    async with aiohttp.ClientSession() as session:
+        async with session.get(url) as response:
+            if response.status == 200:
+                return await response.json()
+            else:
+                return None
 
 # Run the bot
 bot.run(os.environ.get('DISCORD_BOT_TOKEN'))  # Retrieve Discord bot token from Heroku config vars
