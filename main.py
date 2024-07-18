@@ -174,8 +174,8 @@ async def tt_move(ctx, move_name):
         converted_damage = f"({d}) + Sp.ATK"
     elif move.damage_class.name == 'status':
         converted_damage = "This move is non-damaging and provides a status effect."
-    elif move.damage_class.name == 'basic':
-        converted_damage = f"This move deals static damage equal to the user's level."
+    elif move.damage_class.name == 'basic' or move.power == 0:
+        converted_damage = "This move deals static damage equal to the user's level."
     else:
         converted_damage = "Unknown"
 
@@ -200,10 +200,6 @@ async def tt_move(ctx, move_name):
                 additional_info = "d4 + 1"
                 ep_cost = f"2({additional_info})"
                 break
-            elif 'status' in effect.short_effect.lower():
-                move_type = "Status"
-                additional_info = effect.short_effect
-                break
 
     # Create an embed for Table Top (D&D converted) version with EP cost, type, and additional info
     embed = discord.Embed(title=f"Table Top Converted Version: {move.name.capitalize()}",
@@ -211,7 +207,7 @@ async def tt_move(ctx, move_name):
     embed.add_field(name="Table Top Formula", value=converted_damage, inline=False)
     embed.add_field(name="EP Cost", value=f"{ep_cost} EP", inline=False)
     embed.add_field(name="Move Type", value=move_type, inline=False)
-    if move_type in ["Multi-Hit", "Basic", "Status"]:
+    if move_type == "Multi-Hit":
         embed.add_field(name="Additional Info", value=additional_info, inline=False)
 
     await ctx.send(embed=embed)
