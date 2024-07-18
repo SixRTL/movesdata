@@ -115,12 +115,16 @@ async def move_status(ctx, *, move_name):
         
         move = pokebase.move(formatted_move_name.lower())
         
+        # Validate move data
+        if not move:
+            raise ValueError
+        
         # Format move details
-        move_type = move.type.name.capitalize() if hasattr(move, 'type') and move.type else 'Unknown'
-        move_power = move.power if hasattr(move, 'power') and move.power else 'Unknown'
-        move_accuracy = move.accuracy if hasattr(move, 'accuracy') and move.accuracy else 'Unknown'
-        move_pp = move.pp if hasattr(move, 'pp') and move.pp else 'Unknown'
-        move_category = move.damage_class.name.capitalize() if hasattr(move, 'damage_class') and move.damage_class else 'Unknown'
+        move_type = move.type.name.capitalize() if move.type else 'Unknown'
+        move_power = move.power if move.power is not None else 'Unknown'
+        move_accuracy = move.accuracy if move.accuracy is not None else 'Unknown'
+        move_pp = move.pp if move.pp is not None else 'Unknown'
+        move_category = move.damage_class.name.capitalize() if move.damage_class else 'Unknown'
 
         # Create an embed for move details
         embed = discord.Embed(title=f"Move Details: {formatted_move_name}", color=discord.Color.blue())
