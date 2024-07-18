@@ -154,8 +154,8 @@ async def tt_move(ctx, move_name):
         return
 
     # Determine move category and description
-    if move.name.lower() in ['dragon-rage', 'sonic-boom']:  # Add more moves if needed
-        converted_damage = "This move deals a fixed amount of damage."
+    if move.name.lower() in ['dragon-rage', 'sonic-boom', 'night-shade', 'seismic-toss']:  # Add more moves if needed
+        converted_damage = "This move deals static damage equal to the user's level."
         move_category = "Basic"
     elif move.damage_class.name == 'status':
         converted_damage = "This move is non-damaging and provides a status effect."
@@ -166,14 +166,11 @@ async def tt_move(ctx, move_name):
             converted_damage = f"({d}) + ATK" if move.damage_class.name == 'physical' else f"({d}) + Sp.ATK"
             move_category = "Standard"
         else:
-            converted_damage = "Unknown"
-            move_category = "Unknown"
-    elif move.damage_class.name == 'basic' or move.power in [0, None]:
+            converted_damage = "This move deals static damage equal to the user's level."
+            move_category = "Basic"
+    else:
         converted_damage = "This move deals static damage equal to the user's level."
         move_category = "Basic"
-    else:
-        converted_damage = "Unknown"
-        move_category = "Unknown"
 
     # Calculate EP (Energy Points) cost based on move's base power
     if move.power and move.power > 90:
