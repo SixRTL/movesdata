@@ -161,9 +161,9 @@ async def tt_move(ctx, move_name):
         d = 'd' + str(math.ceil(move.power / 10))
         converted_damage = f"({d}) + Sp.ATK"
     elif move.damage_class.name == 'status':
-        converted_damage = "This move is non-damaging."
+        converted_damage = "This move is non-damaging and provides a status effect."
     elif move.damage_class.name == 'basic':
-        converted_damage = f"Level (Basic Move)"
+        converted_damage = f"This move deals static damage equal to the user's level."
     else:
         converted_damage = "Unknown"
 
@@ -177,7 +177,7 @@ async def tt_move(ctx, move_name):
     else:
         ep_cost = 0  # Set EP cost to 0 for Basic moves
 
-    # Determine move type: Standard, Multi-Hit, or Status
+    # Determine move type: Standard, Multi-Hit, Basic, or Status
     move_type = "Standard"
     additional_info = ""
 
@@ -185,29 +185,22 @@ async def tt_move(ctx, move_name):
         for effect in move.effect_entries:
             if 'hits' in effect.short_effect.lower():
                 move_type = "Multi-Hit"
-                additional_info = f"d4 + 1 - Multi-Hit moves"
+                additional_info = "d4 + 1"
+                ep_cost = f"2({additional_info})"
                 break
             elif 'status' in effect.short_effect.lower():
                 move_type = "Status"
                 additional_info = effect.short_effect
                 break
 
-    # Determine PP usage in dungeons based on max PP
-    if move.pp >= 60:
-        dungeon_usage = "3 times per dungeon"
-    elif move.pp >= 30:
-        dungeon_usage = "2 times per dungeon"
-    else:
-        dungeon_usage = "1 time per dungeon"
-
-    # Create an embed for Table Top (D&D converted) version with EP cost, type, and dungeon usage
+    # Create an embed for Table Top (D&D converted) version with EP cost, type, and additional info
     embed = discord.Embed(title=f"Table Top Converted Version: {move.name.capitalize()}",
                           color=discord.Color.orange())
     embed.add_field(name="Table Top Formula", value=converted_damage, inline=False)
     embed.add_field(name="EP Cost", value=f"{ep_cost} EP", inline=False)
     embed.add_field(name="Move Type", value=move_type, inline=False)
-    embed.add_field(name="Additional Info", value=additional_info, inline=False)
-    embed.add_field(name="Dungeon Usage", value=dungeon_usage, inline=False)
+    if move_type in ["Multi-Hit", "Basic", "Status"]:
+        embed.add_field(name="Additional Info", value=additional_info, inline=False)
 
     await ctx.send(embed=embed)
 
