@@ -198,7 +198,7 @@ async def tt_move(ctx, move_name):
             if 'hits' in effect.short_effect.lower():
                 move_category = "Multi-Hit"
                 additional_info = "Roll a d4 + 1 to determine how many hits landed."
-                ep_cost = "2(d4 + 1) EP"  # Set EP cost specifically for Multi-Hit moves
+                ep_cost = "2(d4 + 1)"  # Set EP cost specifically for Multi-Hit moves
                 break
 
     # Create an embed for move details
