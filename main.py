@@ -178,6 +178,15 @@ async def tt_move(ctx, move_name):
         else:
             converted_damage = "This move deals static damage equal to the user's level."
             move_category = "Basic"
+        # Calculate EP (Energy Points) cost based on move's base power
+        if move.power and move.power > 90:
+            ep_cost = 5
+        elif move.power and move.power >= 70:
+            ep_cost = 2
+        elif move.power and move.power >= 1:
+            ep_cost = 1
+        else:
+            ep_cost = 0  # Set EP cost to 0 for Basic moves and moves with no power
     else:
         converted_damage = "This move deals static damage equal to the user's level."
         move_category = "Basic"
@@ -199,15 +208,6 @@ async def tt_move(ctx, move_name):
     if move_category == "Status":
         embed.add_field(name="Dungeon Usage", value=ep_cost, inline=False)
     else:
-        # Calculate EP (Energy Points) cost based on move's base power
-        if move.power and move.power > 90:
-            ep_cost = 5
-        elif move.power and move.power >= 70:
-            ep_cost = 2
-        elif move.power and move.power >= 1:
-            ep_cost = 1
-        else:
-            ep_cost = 0  # Set EP cost to 0 for Basic moves and moves with no power
         embed.add_field(name="EP Cost", value=f"{ep_cost} EP", inline=False)
     embed.add_field(name="Move Category", value=move_category, inline=False)
     if move_category == "Multi-Hit":
