@@ -1,8 +1,8 @@
 import discord
 from discord.ext import commands
-import pymongo
 import os
 import pokebase
+import pymongo
 
 # MongoDB connection
 mongo_uri = os.environ.get('MONGODB_URI')  # Retrieve MongoDB URI from environment variables
@@ -62,8 +62,13 @@ async def view_moves(ctx):
 
     registered_moves = user_data['registered_moves']
     
-    # Format move names: capitalize first letter and replace underscores with spaces
-    formatted_moves = [move.capitalize().replace('_', ' ') for move in registered_moves]
+    # Format move names: capitalize each word properly and replace underscores with spaces
+    formatted_moves = []
+    for move in registered_moves:
+        parts = move.split('_')
+        capitalized_parts = [part.capitalize() for part in parts]
+        formatted_move = ' '.join(capitalized_parts)
+        formatted_moves.append(formatted_move)
     
     # Create an embed for displaying registered moves
     embed = discord.Embed(title=f"{ctx.author}'s Registered Moves", color=discord.Color.green())
@@ -100,6 +105,43 @@ async def replace_moves(ctx, move1, move2, move3, move4):
     collection.update_one({"discord_id": str(ctx.author.id)}, {"$set": user_data}, upsert=True)
 
     await ctx.send(f"Moves replaced successfully for {ctx.author.mention}.")
+
+@bot.command(name='movestatus')
+async def move_status(ctx, move_name):
+    try:
+        move = pokebase.move(move_name.lower())
+    except ValueError:
+        await ctx.send(f"Move '{move_name}' not found. Please enter a valid move name.")
+        return
+
+    # Format move details
+    move_type = move.type.name if hasattr(move, 'type') and move.type else 'Unknown'
+    move_power = move.power if hasattr(move, 'power') and move.power else 'Unknown'
+    move_accuracy = move.accuracy if hasattr(move, 'accuracy') and move.accuracy else 'Unknown'
+    move_pp = move.pp if hasattr(move, 'pp') and move.pp else 'Unknown'
+
+    # Create an embed for move details
+    embed = discord.Embed(title=f"Move Details: {move.name.capitalize()}", color=discord.Color.blue())
+    embed.add_field(name="Type", value=move_type.capitalize(), inline=True)
+    embed.add_field(name="Power", value=move_power, inline=True)
+    embed.add_field(name="Accuracy", value=move_accuracy, inline=True)
+    embed.add_field(name="PP", value=move_pp, inline=True)
+
+    await ctx.send(embed=embed)
+
+@bot.command(name='helpmenu')
+async def help_menu(ctx):
+    # Create an embed for the help menu
+    embed = discord.Embed(title="Command Menu", description="List of available commands:", color=discord.Color.gold())
+
+    # Add fields for each command with brief descriptions
+    embed.add_field(name="$registermoves move1 move2 move3 move4", value="Registers 4 moves to your profile.", inline=False)
+    embed.add_field(name="$viewmoves", value="Displays your registered moves.", inline=False)
+    embed.add_field(name="$replacemoves move1 move2 move3 move4", value="Replaces your registered moves with new ones.", inline=False)
+    embed.add_field(name="$movestatus move_name", value="Shows details (PP, accuracy, power) of a specific move.", inline=False)
+    embed.add_field(name="$helpmenu", value="Displays this command menu.", inline=False)
+
+    await ctx.send(embed=embed)
 
 async def get_move_data(move_name):
     try:
