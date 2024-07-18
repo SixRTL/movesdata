@@ -61,8 +61,16 @@ async def view_moves(ctx):
         return
 
     registered_moves = user_data['registered_moves']
-    moves_list = '\n'.join(registered_moves)
-    await ctx.send(f"Your registered moves:\n{moves_list}")
+    
+    # Format move names: capitalize first letter and replace underscores with spaces
+    formatted_moves = [move.capitalize().replace('_', ' ') for move in registered_moves]
+    
+    # Create an embed for displaying registered moves
+    embed = discord.Embed(title=f"{ctx.author}'s Registered Moves", color=discord.Color.green())
+    for index, move_name in enumerate(formatted_moves):
+        embed.add_field(name=f"Move {index+1}", value=move_name, inline=False)
+    
+    await ctx.send(embed=embed)
 
 @bot.command(name='replacemoves')
 async def replace_moves(ctx, move1, move2, move3, move4):
