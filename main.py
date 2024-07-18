@@ -182,6 +182,16 @@ async def tt_move(ctx, move_name):
         converted_damage = "This move deals static damage equal to the user's level."
         move_category = "Basic"
 
+    # Determine if move is Multi-Hit
+    additional_info = ""
+    if move.effect_entries:
+        for effect in move.effect_entries:
+            if 'hits' in effect.short_effect.lower():
+                move_category = "Multi-Hit"
+                additional_info = "Roll a d4 + 1 to determine how many hits landed."
+                ep_cost = f"2({additional_info})"
+                break
+    
     # Create an embed for move details
     embed = discord.Embed(title=f"Table Top Converted Version: {move.name.capitalize()}",
                           color=discord.Color.orange())
