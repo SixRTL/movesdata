@@ -108,7 +108,7 @@ async def replace_moves(ctx, move1, move2, move3, move4):
     await ctx.send(f"Moves replaced successfully for {ctx.author.mention}.")
 
 @bot.command(name='moveinfo')
-async def move_status(ctx, *, move_name):
+async def move_info(ctx, *, move_name):
     try:
         # Replace spaces with underscores to match Pokebase API format
         formatted_move_name = move_name.replace(' ', '_').lower()
@@ -189,7 +189,7 @@ async def tt_move(ctx, move_name):
             if 'hits' in effect.short_effect.lower():
                 move_category = "Multi-Hit"
                 additional_info = "Roll a d4 + 1 to determine how many hits landed."
-                ep_cost = f"2({additional_info})"
+                ep_cost = "2(d4 + 1) EP"  # Set EP cost specifically for Multi-Hit moves
                 break
 
     # Create an embed for move details
