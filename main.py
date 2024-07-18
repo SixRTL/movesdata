@@ -185,7 +185,7 @@ async def tt_move(ctx, move_name):
         for effect in move.effect_entries:
             if 'hits' in effect.short_effect.lower():
                 move_type = "Multi-Hit"
-                additional_info = "d4 + 1"
+                additional_info = "Roll a d4 + 1 to determine the number of hits."
                 ep_cost = f"2({additional_info})"
                 break
             elif 'status' in effect.short_effect.lower():
