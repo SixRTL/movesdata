@@ -146,8 +146,8 @@ async def tt_move(ctx, move_name):
         await ctx.send(f"Move '{move_name}' not found. Please enter a valid move name.")
         return
 
-    # Initialize ep_cost with a default value
-    ep_cost = "Not applicable"
+    # Initialize ep_cost with a default value of 0
+    ep_cost = 0
 
     # Determine move category and description
     if move.name.lower() in ['dragon-rage', 'sonic-boom', 'night-shade', 'seismic-toss']:  # Add more moves if needed
@@ -170,18 +170,18 @@ async def tt_move(ctx, move_name):
             d = 'd' + str(math.ceil(move.power / 10))
             converted_damage = f"({d}) + ATK" if move.damage_class.name == 'physical' else f"({d}) + Sp.ATK"
             move_category = "Standard"
+            # Calculate EP (Energy Points) cost based on move's base power
+            if move.power and move.power > 90:
+                ep_cost = 5
+            elif move.power and move.power >= 70:
+                ep_cost = 2
+            elif move.power and move.power >= 1:
+                ep_cost = 1
+            else:
+                ep_cost = 0  # Set EP cost to 0 for Basic moves and moves with no power
         else:
             converted_damage = "This move deals static damage equal to the user's level."
             move_category = "Basic"
-        # Calculate EP (Energy Points) cost based on move's base power
-        if move.power and move.power > 90:
-            ep_cost = "5 EP"
-        elif move.power and move.power >= 70:
-            ep_cost = "2 EP"
-        elif move.power and move.power >= 1:
-            ep_cost = "1 EP"
-        else:
-            ep_cost = "0 EP"  # Set EP cost to 0 for Basic moves and moves with no power
     else:
         converted_damage = "This move deals static damage equal to the user's level."
         move_category = "Basic"
@@ -193,7 +193,7 @@ async def tt_move(ctx, move_name):
             if 'hits' in effect.short_effect.lower():
                 move_category = "Multi-Hit"
                 additional_info = "Roll a d4 + 1 to determine how many hits landed."
-                ep_cost = "2(d4 + 1) EP"  # Set EP cost specifically for Multi-Hit moves
+                ep_cost = 2  # Set EP cost specifically for Multi-Hit moves
                 break
 
     # Create an embed for move details
@@ -203,7 +203,7 @@ async def tt_move(ctx, move_name):
     if move_category == "Status":
         embed.add_field(name="Dungeon Usage", value=ep_cost, inline=False)
     else:
-        embed.add_field(name="EP Cost", value=ep_cost, inline=False)
+        embed.add_field(name="EP Cost", value=f"{ep_cost} EP", inline=False)
     embed.add_field(name="Move Category", value=move_category, inline=False)
     if move_category == "Multi-Hit":
         embed.add_field(name="Additional Info", value=additional_info, inline=False)
