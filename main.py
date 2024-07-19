@@ -207,7 +207,7 @@ async def tt_move(ctx, move_name):
         embed.add_field(name="Additional Info", value=additional_info, inline=False)
 
     await ctx.send(embed=embed)
-
+    
 @bot.command(name='helpmenu')
 async def help_menu(ctx):
     # Create an embed for the help menu
