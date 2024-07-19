@@ -222,7 +222,7 @@ async def help_menu(ctx):
     embed.add_field(name="$replacemoves move1 move2 move3 move4", value="Replaces your registered moves with new ones.", inline=False)
     embed.add_field(name="$moveinfo move-name", value="Shows details (PP, accuracy, power, category) of a specific move.", inline=False)
     embed.add_field(name="$ttmove move-name", value="Displays the Table Top converted version of a move (damage formula, EP cost, type, etc.).", inline=False)
-    embed.add_field(name="Usage Note", value="To use commands that VIEW moves separacted with spaces, put a hyphen (-) in its place. When RESGISTERING moves, however, use an underscore (_) instead.", inline=False)
+    embed.add_field(name="Usage Note", value="To use commands that VIEW moves separated with spaces, put a hyphen (-) in its place. When RESGISTERING moves, however, use an underscore (_) instead.", inline=False)
 
     await ctx.send(embed=embed)
 
