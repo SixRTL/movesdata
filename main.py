@@ -115,29 +115,30 @@ async def move_info(ctx, move_name):
         await ctx.send(f"Move '{move_name}' not found. Please enter a valid move name.")
         return
 
-    # Fetch the move description from Pokebase
+    # Fetch move details
+    move_name = move.name.capitalize()
+    pp = move.pp if move.pp is not None else "N/A"
+    accuracy = move.accuracy if move.accuracy is not None else "N/A"
+    power = move.power if move.power is not None else "N/A"
+    move_category = move.damage_class.name.capitalize()
+
+    # Determine move description
     if move.effect_entries:
         move_desc = move.effect_entries[0].short_effect
     else:
         move_desc = "No description available."
 
-    # Determine if the move has fixed, 0, or no power
-    if move.name.lower() in ['dragon-rage', 'night-shade', 'seismic-toss', 'sonic-boom']:  # Add more moves if needed
-        converted_damage = move_desc  # Use move description for fixed/0 power moves
-    elif move.power == 0:
-        converted_damage = move_desc  # Use move description for moves with 0 power
-    elif move.power is None:
-        converted_damage = move_desc  # Use move description for moves with no defined power
-    else:
-        converted_damage = f"{move.power} Power"  # Default to displaying power if not special case
-
     # Create an embed for move details
-    embed = discord.Embed(title=f"Move Info: {move.name.capitalize()}",
+    embed = discord.Embed(title=f"Move Info: {move_name}",
+                          description=move_desc,
                           color=discord.Color.blue())
-    embed.add_field(name="Description", value=converted_damage, inline=False)
+    embed.add_field(name="PP", value=pp, inline=True)
+    embed.add_field(name="Accuracy", value=accuracy, inline=True)
+    embed.add_field(name="Power", value=power, inline=True)
+    embed.add_field(name="Category", value=move_category, inline=False)
 
     await ctx.send(embed=embed)
-
+    
 @bot.command(name='ttmove')
 async def tt_move(ctx, move_name):
     try:
