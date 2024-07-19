@@ -218,7 +218,7 @@ async def help_menu(ctx):
     embed.add_field(name="$viewmoves", value="Displays your registered moves.", inline=False)
     embed.add_field(name="$replacemoves move1 move2 move3 move4", value="Replaces your registered moves with new ones.", inline=False)
     embed.add_field(name="$moveinfo move-name", value="Shows details (PP, accuracy, power, category) of a specific move. If your move is separated by a space, type it with a -.", inline=False)
-    embed.add_field(name="$ttmove move-name", value="Displays the Table Top converted version of a move (damage formula, EP cost, type, etc.).If your move is separated by a space, type it with a -.", inline=False)
+    embed.add_field(name="$ttmove move-name", value="Displays the Table Top converted version of a move (damage formula, EP cost, type, etc.). If your move is separated by a space, type it with a -.", inline=False)
     embed.add_field(name="$helpmenu", value="Displays this command menu.", inline=False)
 
     await ctx.send(embed=embed)
