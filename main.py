@@ -146,6 +146,9 @@ async def tt_move(ctx, move_name):
         await ctx.send(f"Move '{move_name}' not found. Please enter a valid move name.")
         return
 
+    # Initialize ep_cost with a default value
+    ep_cost = "Not applicable"
+
     # Determine move category and description
     if move.name.lower() in ['dragon-rage', 'sonic-boom', 'night-shade', 'seismic-toss']:  # Add more moves if needed
         converted_damage = "This move deals static damage equal to the user's level."
@@ -157,12 +160,11 @@ async def tt_move(ctx, move_name):
         move_category = "Status"
         # Calculate dungeon usage based on max PP
         if move.pp and move.pp >= 60:
-            dungeon_usage = "This move can be used 3 times in a dungeon."
+            ep_cost = "This move can be used 3 times in a dungeon."
         elif move.pp and move.pp >= 30:
-            dungeon_usage = "This move can be used 2 times in a dungeon."
+            ep_cost = "This move can be used 2 times in a dungeon."
         else:
-            dungeon_usage = "This move can be used 1 time in a dungeon."
-        ep_cost = dungeon_usage  # Set EP cost to dungeon usage message for status moves
+            ep_cost = "This move can be used 1 time in a dungeon."
     elif move.damage_class.name in ['physical', 'special']:
         if move.power is not None and move.power > 0:
             d = 'd' + str(math.ceil(move.power / 10))
@@ -173,13 +175,13 @@ async def tt_move(ctx, move_name):
             move_category = "Basic"
         # Calculate EP (Energy Points) cost based on move's base power
         if move.power and move.power > 90:
-            ep_cost = 5
+            ep_cost = "5 EP"
         elif move.power and move.power >= 70:
-            ep_cost = 2
+            ep_cost = "2 EP"
         elif move.power and move.power >= 1:
-            ep_cost = 1
+            ep_cost = "1 EP"
         else:
-            ep_cost = 0  # Set EP cost to 0 for Basic moves and moves with no power
+            ep_cost = "0 EP"  # Set EP cost to 0 for Basic moves and moves with no power
     else:
         converted_damage = "This move deals static damage equal to the user's level."
         move_category = "Basic"
@@ -191,7 +193,7 @@ async def tt_move(ctx, move_name):
             if 'hits' in effect.short_effect.lower():
                 move_category = "Multi-Hit"
                 additional_info = "Roll a d4 + 1 to determine how many hits landed."
-                ep_cost = "2(d4 + 1)"  # Set EP cost specifically for Multi-Hit moves
+                ep_cost = "2(d4 + 1) EP"  # Set EP cost specifically for Multi-Hit moves
                 break
 
     # Create an embed for move details
@@ -201,7 +203,7 @@ async def tt_move(ctx, move_name):
     if move_category == "Status":
         embed.add_field(name="Dungeon Usage", value=ep_cost, inline=False)
     else:
-        embed.add_field(name="EP Cost", value=f"{ep_cost} EP", inline=False)
+        embed.add_field(name="EP Cost", value=ep_cost, inline=False)
     embed.add_field(name="Move Category", value=move_category, inline=False)
     if move_category == "Multi-Hit":
         embed.add_field(name="Additional Info", value=additional_info, inline=False)
