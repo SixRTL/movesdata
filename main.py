@@ -171,15 +171,6 @@ async def tt_move(ctx, move_name):
             d = 'd' + str(math.ceil(move.power / 10))
             converted_damage = f"({d}) + ATK" if move.damage_class.name == 'physical' else f"({d}) + Sp.ATK"
             move_category = "Standard"
-            # Calculate EP (Energy Points) cost based on move's base power
-            if move.power and move.power > 90:
-                ep_cost = 5
-            elif move.power and move.power >= 70:
-                ep_cost = 2
-            elif move.power and move.power >= 1:
-                ep_cost = 1
-            else:
-                ep_cost = 0  # Set EP cost to 0 for Basic moves and moves with no power
         else:
             converted_damage = "This move deals static damage equal to the user's level."
             move_category = "Basic"
@@ -197,19 +188,29 @@ async def tt_move(ctx, move_name):
                 ep_cost = 2  # Set EP cost specifically for Multi-Hit moves
                 break
 
+    # Calculate EP (Energy Points) cost based on PP range
+    if move.pp and move.pp >= 40:
+        ep_cost = 1
+    elif move.pp and move.pp >= 30:
+        ep_cost = 2
+    elif move.pp and move.pp >= 20:
+        ep_cost = 3
+    elif move.pp and move.pp >= 10:
+        ep_cost = 4
+    else:
+        ep_cost = 5
+
     # Create an embed for move details
     embed = discord.Embed(title=f"Table Top Converted Version: {move.name.capitalize()}",
                           color=discord.Color.orange())
     embed.add_field(name="Table Top Formula", value=converted_damage, inline=False)
-    if move_category == "Status":
-        embed.add_field(name="Dungeon Usage", value=ep_cost, inline=False)
-    else:
-        embed.add_field(name="EP Cost", value=f"{ep_cost} EP", inline=False)
+    embed.add_field(name="EP Cost", value=f"{ep_cost} EP", inline=False)
     embed.add_field(name="Move Category", value=move_category, inline=False)
     if move_category == "Multi-Hit":
         embed.add_field(name="Additional Info", value=additional_info, inline=False)
 
     await ctx.send(embed=embed)
+
     
 @bot.command(name='helpmenu')
 async def help_menu(ctx):
